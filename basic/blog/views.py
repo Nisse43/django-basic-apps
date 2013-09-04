@@ -4,7 +4,7 @@ import re
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import Http404
-from django.views.generic.dates import YearArchiveView, MonthArchiveView, DayArchiveView
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, DayArchiveView, DateDetailView
 from django.views.generic.list import ListView
 
 from django.db.models import Q
@@ -37,27 +37,9 @@ class PostDayArchiveView(DayArchiveView):
         queryset=Post.objects.published()
 
 
-def post_detail(request, slug, year, month, day, **kwargs):
-    """
-    Displays post detail. If user is superuser, view will display 
-    unpublished post detail for previewing purposes.
-    """
-    posts = None
-    if request.user.is_superuser:
-        posts = Post.objects.all()
-    else:
-        posts = Post.objects.published()
-    return date_based.object_detail(
-        request,
-        year=year,
-        month=month,
-        day=day,
-        date_field='publish',
-        slug=slug,
-        queryset=posts,
-        **kwargs
-    )
-#post_detail.__doc__ = date_based.object_detail.__doc__
+class PostDetail(DateDetailView):
+    queryset = Post.objects.published()
+    date_field = 'publish'
 
 
 def category_list(request, template_name = 'blog/category_list.html', **kwargs):
